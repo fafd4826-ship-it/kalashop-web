@@ -5,8 +5,8 @@ const list = document.getElementById('list');
 const input = document.getElementById('search');
 let currentCategory = 'all';
 
-// ВАЖНО: Замени ссылку ниже на свою актуальную ссылку от туннеля Termux!
-const API_URL = "https://kalashop-777.loca.lt/api/catalog";
+// ССЫЛКА НА ТВОЙ ОБЛАЧНЫЙ СЕРВЕР RENDER
+const API_URL = "https://kalashop-server.onrender.com/api/catalog";
 
 function switchTab(category, btn) {
   currentCategory = category;
@@ -60,7 +60,7 @@ async function load() {
       `;
     }).join('');
   } catch (e) {
-    list.innerHTML = `<div style="color: red; text-align: center;">Ошибка загрузки. Проверь туннель.</div>`;
+    list.innerHTML = `<div style="color: red; text-align: center; padding: 20px;">Ошибка загрузки. Сервер просыпается, подождите 30 секунд и обновите.</div>`;
   }
 }
 
