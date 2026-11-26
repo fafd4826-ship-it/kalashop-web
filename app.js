@@ -122,7 +122,7 @@ async function buy(itemId, price) {
           tg.close();
         }
       } catch (e) {
-        tg.showAlert("❌ Ошибка сети. Попробуйте позже.");
+        tg.showAlert("❌ Ошибка сети. Сервер просыпается, подождите 30 секунд и попробуйте снова.");
       }
     }
   });
