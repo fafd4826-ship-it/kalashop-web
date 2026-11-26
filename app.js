@@ -77,7 +77,8 @@ async function load() {
                 
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="color: #FFD700; font-weight: bold; font-size: 16px;">${i.price_stars} ⭐</div>
-                    <button style="background: #2ea6ff; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold;" onclick="buy(${i.item_id}, ${i.price_stars})">Купить</button>
+                    <!-- ВАЖНО: Передаем price_rub (цену в рублях) для покупки -->
+                    <button style="background: #2ea6ff; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold;" onclick="buy(${i.item_id}, ${i.price_rub})">Купить</button>
                 </div>
             </div>
             `;
@@ -87,10 +88,10 @@ async function load() {
     }
 }
 
-async function buy(itemId, price) {
+async function buy(itemId, priceRub) {
     tg.showPopup({
         title: 'Подтверждение',
-        message: `Купить этот аккаунт за ${price} ⭐? (Тестовый режим, звезды не спишутся)`,
+        message: `Купить этот аккаунт за ${priceRub} руб.? (Тестовый режим)`,
         buttons: [
             {id: 'cancel', type: 'cancel', text: 'Отмена'},
             {id: 'ok', type: 'default', text: 'Купить'}
@@ -104,7 +105,7 @@ async function buy(itemId, price) {
                     body: JSON.stringify({
                         user_id: tg.initDataUnsafe.user.id,
                         item_id: itemId,
-                        price: price
+                        price: priceRub // Передаем цену в рублях
                     })
                 });
                 
