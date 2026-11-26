@@ -28,7 +28,7 @@ async function load() {
   list.innerHTML = '<div style="color: #2ea6ff; text-align: center; margin-top: 20px;">Пробуждение сервера...</div>';
   
   try {
-    await fetch(PING_URL); // Будим сервер
+    await fetch(PING_URL);
     
     list.innerHTML = '<div style="color: #2ea6ff; text-align: center; margin-top: 20px;">Загрузка каталога...</div>';
     const r = await fetch(`${API_URL}?category=${currentCategory}&country=${q}&q=${q}`);
@@ -90,7 +90,7 @@ async function load() {
   }
 }
 
-// Исправленная функция покупки (без зависаний)
+// ИСПРАВЛЕНО: Теперь ждем ответа от сервера
 async function buy(itemId, price) {
   tg.showPopup({
     title: 'Подтверждение',
@@ -99,22 +99,32 @@ async function buy(itemId, price) {
       {id: 'cancel', type: 'cancel', text: 'Отмена'},
       {id: 'ok', type: 'default', text: 'Оплатить'}
     ]
-  }, function(id) {
+  }, async function(id) {
     if (id === 'ok') {
-      // Отправляем запрос асинхронно, не ожидая ответа
-      fetch(BUY_URL, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          user_id: tg.initDataUnsafe.user.id,
-          item_id: itemId,
-          price: price
-        })
-      }).catch(e => console.log(e));
+      tg.showAlert("Отправляем счет...");
       
-      // Мгновенно показываем сообщение и закрываем Mini App
-      tg.showAlert("Счет отправлен в чат! Перейдите в бота для оплаты.");
-      tg.close(); 
+      try {
+        const res = await fetch(BUY_URL, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            user_id: tg.initDataUnsafe.user.id,
+            item_id: itemId,
+            price: price
+          })
+        });
+        
+        const data = await res.json();
+        
+        if (data.error) {
+          tg.showAlert(`❌ Ошибка: ${data.msg}`);
+        } else {
+          tg.showAlert("✅ Счет отправлен в чат! Перейдите в бота для оплаты.");
+          tg.close();
+        }
+      } catch (e) {
+        tg.showAlert("❌ Ошибка сети. Попробуйте позже.");
+      }
     }
   });
 }
