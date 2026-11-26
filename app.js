@@ -90,7 +90,7 @@ async function load() {
 async function buy(itemId, price) {
     tg.showPopup({
         title: 'Подтверждение',
-        message: `Купить этот аккаунт за ${price} ⭐? (Тестовый режим)`,
+        message: `Купить этот аккаунт за ${price} ⭐? (Тестовый режим, звезды не спишутся)`,
         buttons: [
             {id: 'cancel', type: 'cancel', text: 'Отмена'},
             {id: 'ok', type: 'default', text: 'Купить'}
