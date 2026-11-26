@@ -90,7 +90,7 @@ async function load() {
   }
 }
 
-// ИСПРАВЛЕНО: Теперь ждем ответа от сервера
+// ИСПРАВЛЕНО: Убрали блокирующий showAlert("Отправляем счет")
 async function buy(itemId, price) {
   tg.showPopup({
     title: 'Подтверждение',
@@ -101,8 +101,7 @@ async function buy(itemId, price) {
     ]
   }, async function(id) {
     if (id === 'ok') {
-      tg.showAlert("Отправляем счет...");
-      
+      // Показываем невизуальную загрузку или просто ждем
       try {
         const res = await fetch(BUY_URL, {
           method: 'POST',
