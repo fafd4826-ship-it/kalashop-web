@@ -6,11 +6,12 @@ const input = document.getElementById('search');
 const sortSelect = document.getElementById('sort');
 let currentCategory = 'all';
 
-// Твой сервер в облаке
+// Твои ссылки на облачный сервер
 const API_URL = "https://kalashop-server.onrender.com/api/catalog";
 const BUY_URL = "https://kalashop-server.onrender.com/api/buy";
+const PING_URL = "https://kalashop-server.onrender.com/api/ping";
 
-// Превращение кода страны в флаг
+// Превращение кода страны (RU, US) в эмодзи-флаг 🇷🇺
 function getFlagEmoji(countryCode) {
   if (!countryCode || countryCode.length !== 2 || countryCode === "UNKNOWN") return "🌐";
   const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt());
@@ -29,10 +30,15 @@ function switchTab(category, btn) {
 async function load() {
   const q = encodeURIComponent(input.value.trim());
   
-  // Показываем загрузку
-  list.innerHTML = '<div style="color: #2ea6ff; text-align: center; margin-top: 20px;">Загрузка каталога...</div>';
+  // Показываем, что идет пробуждение сервера
+  list.innerHTML = '<div style="color: #2ea6ff; text-align: center; margin-top: 20px;">Пробуждение сервера (до 30 сек)...</div>';
   
   try {
+    // Будим сервер (запрос на /api/ping)
+    await fetch(PING_URL);
+    
+    list.innerHTML = '<div style="color: #2ea6ff; text-align: center; margin-top: 20px;">Загрузка каталога...</div>';
+    
     const r = await fetch(`${API_URL}?category=${currentCategory}&country=${q}&q=${q}`);
     const data = await r.json();
     
@@ -89,7 +95,7 @@ async function load() {
       `;
     }).join('');
   } catch (e) {
-    list.innerHTML = `<div style="color: #ff4d4d; text-align: center; padding: 20px;">Ошибка загрузки. Сервер просыпается, подождите 30 секунд.</div>`;
+    list.innerHTML = `<div style="color: #ff4d4d; text-align: center; padding: 20px;">Ошибка загрузки. Сервер просыпается, подождите 30 секунд и нажмите еще раз.</div>`;
   }
 }
 
@@ -134,6 +140,6 @@ async function buy(itemId, price) {
   });
 }
 
-// Слушатели событий
+// Запуск при открытии
 input.addEventListener('input', load);
 load();
