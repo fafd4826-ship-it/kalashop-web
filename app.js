@@ -6,19 +6,16 @@ const input = document.getElementById('search');
 const sortSelect = document.getElementById('sort');
 let currentCategory = 'all';
 
-// Твои ссылки на облачный сервер
 const API_URL = "https://kalashop-server.onrender.com/api/catalog";
 const BUY_URL = "https://kalashop-server.onrender.com/api/buy";
 const PING_URL = "https://kalashop-server.onrender.com/api/ping";
 
-// Превращение кода страны (RU, US) в эмодзи-флаг 🇷🇺
 function getFlagEmoji(countryCode) {
   if (!countryCode || countryCode.length !== 2 || countryCode === "UNKNOWN") return "🌐";
   const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt());
   return String.fromCodePoint(...codePoints);
 }
 
-// Переключение вкладок
 function switchTab(category, btn) {
   currentCategory = category;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -26,25 +23,19 @@ function switchTab(category, btn) {
   load();
 }
 
-// Загрузка каталога
 async function load() {
   const q = encodeURIComponent(input.value.trim());
-  
-  // Показываем, что идет пробуждение сервера
-  list.innerHTML = '<div style="color: #2ea6ff; text-align: center; margin-top: 20px;">Пробуждение сервера (до 30 сек)...</div>';
+  list.innerHTML = '<div style="color: #2ea6ff; text-align: center; margin-top: 20px;">Пробуждение сервера...</div>';
   
   try {
-    // Будим сервер (запрос на /api/ping)
-    await fetch(PING_URL);
+    await fetch(PING_URL); // Будим сервер
     
     list.innerHTML = '<div style="color: #2ea6ff; text-align: center; margin-top: 20px;">Загрузка каталога...</div>';
-    
     const r = await fetch(`${API_URL}?category=${currentCategory}&country=${q}&q=${q}`);
     const data = await r.json();
     
     let items = data.items;
     
-    // Сортировка
     if (sortSelect.value === 'low') {
         items.sort((a, b) => a.price_stars - b.price_stars);
     } else if (sortSelect.value === 'high') {
@@ -95,22 +86,22 @@ async function load() {
       `;
     }).join('');
   } catch (e) {
-    list.innerHTML = `<div style="color: #ff4d4d; text-align: center; padding: 20px;">Ошибка загрузки. Сервер просыпается, подождите 30 секунд и нажмите еще раз.</div>`;
+    list.innerHTML = `<div style="color: #ff4d4d; text-align: center; padding: 20px;">Ошибка загрузки. Подождите 30 секунд и обновите.</div>`;
   }
 }
 
-// Логика покупки
+// Функция покупки (отправляет запрос на счет)
 async function buy(itemId, price) {
   tg.showPopup({
-    title: 'Подтверждение покупки',
-    message: `Вы действительно хотите купить этот аккаунт за ${price} ⭐?`,
+    title: 'Подтверждение',
+    message: `Выставить счет на ${price} ⭐ за этот аккаунт?`,
     buttons: [
       {id: 'cancel', type: 'cancel', text: 'Отмена'},
-      {id: 'ok', type: 'default', text: 'Купить'}
+      {id: 'ok', type: 'default', text: 'Оплатить'}
     ]
   }, async function(id) {
     if (id === 'ok') {
-      tg.showAlert("Обработка платежа... Пожалуйста, подождите.");
+      tg.showAlert("Отправляем счет в чат...");
       
       try {
         const res = await fetch(BUY_URL, {
@@ -118,7 +109,6 @@ async function buy(itemId, price) {
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
             user_id: tg.initDataUnsafe.user.id,
-            username: tg.initDataUnsafe.user.username || "unknown",
             item_id: itemId,
             price: price
           })
@@ -126,12 +116,11 @@ async function buy(itemId, price) {
         
         const data = await res.json();
         
-        if (data.error === "no_money") {
-          tg.showAlert(`❌ Недостаточно средств!\nВаш баланс: ${data.balance} ⭐`);
-        } else if (data.error) {
-          tg.showAlert(`❌ Ошибка при покупке: ${data.msg}`);
+        if (data.error) {
+          tg.showAlert(`❌ Ошибка: ${data.msg}`);
         } else {
-          tg.showAlert(`✅ Успешно куплено!\nНомер: ${data.phone}\nКод: ${data.code}`);
+          tg.showAlert("✅ Счет отправлен в чат! Перейдите в чат с ботом и оплатите его.");
+          tg.close(); // Закрываем мини-апп, чтобы юзер увидел счет в чате
         }
       } catch (e) {
         tg.showAlert("❌ Ошибка сервера. Попробуйте позже.");
@@ -140,6 +129,5 @@ async function buy(itemId, price) {
   });
 }
 
-// Запуск при открытии
 input.addEventListener('input', load);
 load();
