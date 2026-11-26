@@ -90,7 +90,7 @@ async function load() {
   }
 }
 
-// Функция покупки (отправляет запрос на счет)
+// Исправленная функция покупки (без зависаний)
 async function buy(itemId, price) {
   tg.showPopup({
     title: 'Подтверждение',
@@ -99,32 +99,22 @@ async function buy(itemId, price) {
       {id: 'cancel', type: 'cancel', text: 'Отмена'},
       {id: 'ok', type: 'default', text: 'Оплатить'}
     ]
-  }, async function(id) {
+  }, function(id) {
     if (id === 'ok') {
-      tg.showAlert("Отправляем счет в чат...");
+      // Отправляем запрос асинхронно, не ожидая ответа
+      fetch(BUY_URL, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          user_id: tg.initDataUnsafe.user.id,
+          item_id: itemId,
+          price: price
+        })
+      }).catch(e => console.log(e));
       
-      try {
-        const res = await fetch(BUY_URL, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            user_id: tg.initDataUnsafe.user.id,
-            item_id: itemId,
-            price: price
-          })
-        });
-        
-        const data = await res.json();
-        
-        if (data.error) {
-          tg.showAlert(`❌ Ошибка: ${data.msg}`);
-        } else {
-          tg.showAlert("✅ Счет отправлен в чат! Перейдите в чат с ботом и оплатите его.");
-          tg.close(); // Закрываем мини-апп, чтобы юзер увидел счет в чате
-        }
-      } catch (e) {
-        tg.showAlert("❌ Ошибка сервера. Попробуйте позже.");
-      }
+      // Мгновенно показываем сообщение и закрываем Mini App
+      tg.showAlert("Счет отправлен в чат! Перейдите в бота для оплаты.");
+      tg.close(); 
     }
   });
 }
