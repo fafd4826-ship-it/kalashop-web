@@ -90,7 +90,6 @@ async function load() {
   }
 }
 
-// ИСПРАВЛЕНО: Убрали блокирующий showAlert("Отправляем счет")
 async function buy(itemId, price) {
   tg.showPopup({
     title: 'Подтверждение',
@@ -101,7 +100,6 @@ async function buy(itemId, price) {
     ]
   }, async function(id) {
     if (id === 'ok') {
-      // Показываем невизуальную загрузку или просто ждем
       try {
         const res = await fetch(BUY_URL, {
           method: 'POST',
@@ -115,7 +113,9 @@ async function buy(itemId, price) {
         
         const data = await res.json();
         
-        if (data.error) {
+        if (data.error === "no_lolz_funds") {
+          tg.showAlert("❌ На балансе магазина недостаточно средств для выкупа этого аккаунта. Пожалуйста, выберите аккаунт дешевле.");
+        } else if (data.error) {
           tg.showAlert(`❌ Ошибка: ${data.msg}`);
         } else {
           tg.showAlert("✅ Счет отправлен в чат! Перейдите в бота для оплаты.");
