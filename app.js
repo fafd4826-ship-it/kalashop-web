@@ -92,11 +92,11 @@ async function load() {
 
 async function buy(itemId, price) {
   tg.showPopup({
-    title: 'Подтверждение',
-    message: `Выставить счет на ${price} ⭐ за этот аккаунт?`,
+    title: 'ТЕСТОВЫЙ РЕЖИМ',
+    message: `Попробовать купить аккаунт БЕЗ звезд?`,
     buttons: [
       {id: 'cancel', type: 'cancel', text: 'Отмена'},
-      {id: 'ok', type: 'default', text: 'Оплатить'}
+      {id: 'ok', type: 'default', text: 'Тест'}
     ]
   }, async function(id) {
     if (id === 'ok') {
@@ -113,12 +113,10 @@ async function buy(itemId, price) {
         
         const data = await res.json();
         
-        if (data.error === "no_lolz_funds") {
-          tg.showAlert("❌ На балансе магазина недостаточно средств для выкупа этого аккаунта. Пожалуйста, выберите аккаунт дешевле.");
-        } else if (data.error) {
-          tg.showAlert(`❌ Ошибка: ${data.msg}`);
+        if (data.error) {
+          tg.showAlert(`❌ Ошибка API Lolz: ${data.msg}`);
         } else {
-          tg.showAlert("✅ Счет отправлен в чат! Перейдите в бота для оплаты.");
+          tg.showAlert("✅ Тест пройден! Проверьте чат с ботом.");
           tg.close();
         }
       } catch (e) {
