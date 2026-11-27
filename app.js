@@ -93,14 +93,15 @@ async function load() {
 async function buy(itemId, price) {
   tg.showPopup({
     title: 'ТЕСТОВЫЙ РЕЖИМ',
-    message: `Попробовать купить аккаунт БЕЗ звезд?`,
+    message: `Отправить запрос на покупку БЕЗ звезд?`,
     buttons: [
       {id: 'cancel', type: 'cancel', text: 'Отмена'},
-      {id: 'ok', type: 'default', text: 'Тест'}
+      {id: 'ok', type: 'default', text: 'Купить'}
     ]
   }, async function(id) {
     if (id === 'ok') {
       try {
+        // Отправляем запрос (сервер ответит моментально)
         const res = await fetch(BUY_URL, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -114,13 +115,13 @@ async function buy(itemId, price) {
         const data = await res.json();
         
         if (data.error) {
-          tg.showAlert(`❌ Ошибка API Lolz: ${data.msg}`);
+          tg.showAlert(`❌ Ошибка: ${data.msg}`);
         } else {
-          tg.showAlert("✅ Тест пройден! Проверьте чат с ботом.");
+          tg.showAlert("✅ Запрос отправлен! Бот покупает аккаунт, результат придет в чат.");
           tg.close();
         }
       } catch (e) {
-        tg.showAlert("❌ Ошибка сети. Сервер просыпается, подождите 30 секунд и попробуйте снова.");
+        tg.showAlert("❌ Ошибка сети. Попробуйте позже.");
       }
     }
   });
